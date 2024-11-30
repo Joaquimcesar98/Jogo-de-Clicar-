@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jogo: Clique no Círculo</title>
   <style>
-    /* Estilos da página */
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
 
     body {
@@ -67,6 +66,7 @@
       overflow: hidden;
       background-color: rgba(255, 255, 255, 0.1);
       border-radius: 10px;
+      display: none;
     }
 
     .circle {
@@ -76,7 +76,7 @@
       background-color: #ff00ff;
       border-radius: 50%;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform 0.2s, left 0.2s, top 0.2s;
     }
 
     .circle:hover {
@@ -87,17 +87,35 @@
       margin-top: 20px;
       font-size: 20px;
     }
+
+    .options {
+      margin-top: 20px;
+    }
+
+    .options button {
+      margin: 5px;
+    }
   </style>
 </head>
 <body>
   <!-- Botão de voltar -->
   <header>
-    <button onclick="window.location.href='https://joaquimcesar98.github.io/Nosso-Site/'">Voltar</button>
+    <button onclick="window.location.href='https://www.google.com'">Voltar</button>
   </header>
 
-  <!-- Título e área do jogo -->
+  <!-- Título -->
   <h1>Jogo: Clique no Círculo</h1>
+
+  <!-- Opções de tempo -->
+  <div class="options">
+    <button onclick="startGame(5)">5 Segundos</button>
+    <button onclick="startGame(10)">10 Segundos</button>
+  </div>
+
+  <!-- Área do jogo -->
   <div id="gameArea"></div>
+  
+  <!-- Pontuação -->
   <div id="score">Pontuação: 0</div>
 
   <script>
@@ -105,36 +123,64 @@
     const gameArea = document.getElementById("gameArea");
     const scoreDisplay = document.getElementById("score");
     let score = 0;
+    let gameInterval;
+    let gameTimeout;
+    let circle;
 
     // Função para criar um círculo
     function createCircle() {
-      // Remove qualquer círculo existente
-      const oldCircle = document.querySelector(".circle");
-      if (oldCircle) oldCircle.remove();
+      if (!circle) {
+        // Cria o círculo apenas uma vez
+        circle = document.createElement("div");
+        circle.classList.add("circle");
+        gameArea.appendChild(circle);
 
-      // Cria o novo círculo
-      const circle = document.createElement("div");
-      circle.classList.add("circle");
+        // Evento de clique no círculo
+        circle.addEventListener("click", () => {
+          score++; // Incrementa a pontuação
+          scoreDisplay.textContent = `Pontuação: ${score}`;
+          moveCircle(); // Move o círculo
+        });
+      }
 
-      // Define uma posição aleatória dentro da área de jogo
+      // Move o círculo para uma nova posição
+      moveCircle();
+    }
+
+    // Função para mover o círculo
+    function moveCircle() {
       const x = Math.random() * (gameArea.clientWidth - 40);
       const y = Math.random() * (gameArea.clientHeight - 40);
       circle.style.left = `${x}px`;
       circle.style.top = `${y}px`;
-
-      // Evento de clique no círculo
-      circle.addEventListener("click", () => {
-        score++; // Incrementa a pontuação
-        scoreDisplay.textContent = `Pontuação: ${score}`;
-        createCircle(); // Cria um novo círculo
-      });
-
-      // Adiciona o círculo à área de jogo
-      gameArea.appendChild(circle);
     }
 
-    // Inicializa o jogo criando o primeiro círculo
-    createCircle();
+    // Função para iniciar o jogo
+    function startGame(duration) {
+      // Resetar estado do jogo
+      score = 0;
+      scoreDisplay.textContent = "Pontuação: 0";
+      gameArea.style.display = "block";
+
+      // Criar o círculo
+      createCircle();
+
+      // Encerrar o jogo após o tempo selecionado
+      gameTimeout = setTimeout(endGame, duration * 1000);
+    }
+
+    // Função para encerrar o jogo
+    function endGame() {
+      clearTimeout(gameTimeout);
+
+      // Ocultar a área de jogo e remover o círculo
+      gameArea.style.display = "none";
+      if (circle) circle.remove();
+      circle = null;
+
+      // Exibir mensagem final
+      alert(`Fim de jogo! Sua pontuação final foi: ${score}`);
+    }
   </script>
 </body>
 </html>
